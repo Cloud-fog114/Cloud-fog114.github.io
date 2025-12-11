@@ -1,75 +1,88 @@
-<!DOCTYPE html><html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Simple Chat Bot</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    #messages { height: 300px; overflow-y: auto; padding: 10px; background: #f7f7f7; border-radius: 10px; display: flex; flex-direction: column; gap: 6px; }
-    .row { display: flex; gap: 6px; align-items: flex-end; }
-    .me { align-self: flex-end; flex-direction: row-reverse; }
-    .bubble { max-width: 70%; padding: 8px 12px; border-radius: 12px; word-break: break-word; }
-    .me .bubble { background: #4a8ef7; color: white; }
-    .bot .bubble { background: #e0e0e0; }
-    img { width: 32px; height: 32px; border-radius: 50%; }
-    #input-area { display:flex; gap:8px; margin-top:10px; }
-    input[type="text"] { flex:1; padding:8px; border-radius:8px; border:1px solid #ccc; }
-  </style>
-</head>
-<body> <h2>簡易聊天室 Bot</h2> <div style="margin-bottom:10px; display:flex; flex-direction:column; gap:6px;">
-    <input id="botName" placeholder="Bot 名字" />
-    <input id="botFile" type="file" accept="image/*" />
-  </div> <div id="messages"></div> <div id="input-area">
-    <input id="userInput" placeholder="輸入訊息..." onkeydown="if(event.key==='Enter') send()">
-    <button onclick="send()">送出</button>
-  </div> <script>
-    const replies = ["雲今天心情很好。","我剛剛打了個噴嚏。","你知道嗎？我剛睡醒。","宇宙在對你微笑。"];
+import { useState } from "react";
 
-    let botAvatar = "";
+export default function ChatRoomApp() { const [step, setStep] = useState("setup"); const [botName, setBotName] = useState("Bot"); const [botAvatar, setBotAvatar] = useState(null); const [messages, setMessages] = useState([]); const [input, setInput] = useState("");
 
-    botFile.onchange = e => {
-      const f = e.target.files[0];
-      if (!f) return;
-      const reader = new FileReader();
-      reader.onload = e => botAvatar = e.target.result;
-      reader.readAsDataURL(f);
-    };
+const handleImageUpload = (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = () => setBotAvatar(reader.result); reader.readAsDataURL(file); } };
 
-    function add(sender, text, avatar) {
-      const box = messages;
-      const name = document.createElement("div");
-      name.style.fontSize = "12px";
-      name.style.opacity = "0.7";
-      name.textContent = sender;
+const sendMessage = () => { if (!input.trim()) return; setMessages([...messages, { sender: "user", text: input }]); setInput(""); };
 
-      const row = document.createElement("div");
-      row.className = sender === "你" ? "row me" : "row bot";
+return ( <div className="w-full h-screen flex items-center justify-center bg-gray-100 p-4"> <div className="w-full max-w-md h-full bg-white rounded-2xl shadow-lg p-4 flex flex-col"> {step === "setup" && ( <div className="flex flex-col gap-4 mt-8"> <h1 className="text-2xl font-bold text-center">設定你的聊天機器人</h1>
 
-      if (avatar) {
-        const img = document.createElement("img");
-        img.src = avatar;
-        row.appendChild(img);
-      }
+<input
+          type="text"
+          placeholder="Bot 名字"
+          value={botName}
+          onChange={(e) => setBotName(e.target.value)}
+          className="border p-2 rounded-xl"
+        />
 
-      const bubble = document.createElement("div");
-      bubble.className = "bubble";
-      bubble.textContent = text;
-      row.appendChild(bubble);
+        <input type="file" accept="image/*" onChange={handleImageUpload} />
 
-      box.appendChild(name);
-      box.appendChild(row);
-      box.scrollTop = box.scrollHeight;
-    }
+        {botAvatar && (
+          <img
+            src={botAvatar}
+            alt="avatar preview"
+            className="w-24 h-24 rounded-full object-cover mx-auto"
+          />
+        )}
 
-    function send() {
-      const t = userInput.value.trim();
-      if (!t) return;
-      add("你", t, "");
-      userInput.value = "";
+        <button
+          className="bg-blue-500 text-white py-2 rounded-xl"
+          onClick={() => setStep("chat")}
+        >
+          進入聊天室
+        </button>
+      </div>
+    )}
 
-      const botName = botNameInput = botName.value || "Bot";
-      const reply = replies[Math.random() * replies.length | 0];
-      setTimeout(() => add(botNameInput, reply, botAvatar), 300);
-    }
-  </script></body>
-</html>
+    {step === "chat" && (
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between pb-2 border-b">
+          <div className="flex items-center gap-2">
+            {botAvatar && (
+              <img src={botAvatar} className="w-10 h-10 rounded-full object-cover" />
+            )}
+            <span className="font-semibold">{botName}</span>
+          </div>
+          <button
+            className="text-sm text-blue-500"
+            onClick={() => setStep("setup")}
+          >
+            更改設定
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto py-4 flex flex-col gap-3">
+          {messages.map((m, i) => (
+            <div
+              key={i}
+              className={`max-w-[70%] p-2 rounded-xl shadow-sm ${
+                m.sender === "user" ? "bg-blue-100 self-end" : "bg-gray-200 self-start"
+              }`}
+            >
+              {m.text}
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2 mt-auto">
+          <input
+            className="flex-1 border p-2 rounded-xl"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            placeholder="輸入訊息..."
+          />
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded-xl"
+            onClick={sendMessage}
+          >
+            送出
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
+); }
