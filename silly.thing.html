@@ -1,148 +1,95 @@
+
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chat Bot</title>
   <style>
-    body {
-      margin: 0;
-      background: #f0f2f5;
-      font-family: Arial;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }#chat-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.message {
-  max-width: 70%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
-}
-
-.bot {
-  background: white;
-  align-self: flex-start;
-}
-
-.user {
-  background: #4e8cff;
-  color: white;
-  align-self: flex-end;
-}
-
-.avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-#input-area {
-  display: flex;
-  padding: 10px;
-  background: white;
-  border-top: 1px solid #ccc;
-}
-
-#text-input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-#send-btn {
-  margin-left: 10px;
-  padding: 10px 18px;
-  border: none;
-  border-radius: 6px;
-  background: #4e8cff;
-  color: white;
-  cursor: pointer;
-}
-
-#settings-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: none;
-  background: #4e8cff;
-  color: white;
-  cursor: pointer;
-}
-
-/* Popup */
-#settings-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.45);
-  display: none;
-  justify-content: center;
-  align-items: center;
-}
-
-#settings-box {
-  width: 320px;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-#bot-preview {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #4e8cff;
-}
-
+    body { margin:0; font-family: Arial; height:100vh; display:flex; flex-direction:column; background:#f0f2f5; color:#000; transition: background 0.3s, color 0.3s; }
+    body.dark { background:#121212; color:#eee; }
+    #chat-container { flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px; }
+    .message { max-width:70%; padding:10px 14px; border-radius:12px; display:flex; gap:8px; align-items:flex-end; }
+    .bot { background:white; align-self:flex-start; color:#000; transition: background 0.3s, color 0.3s; }
+    body.dark .bot { background:#1e1e1e; color:#eee; }
+    .user { background:#4e8cff; color:white; align-self:flex-end; transition: background 0.3s, color 0.3s; }
+    .avatar { width:32px; height:32px; border-radius:50%; object-fit:cover; }
+    #input-area { display:flex; padding:10px; background:white; border-top:1px solid #ccc; transition: background 0.3s; }
+    body.dark #input-area { background:#1e1e1e; }
+    #text-input { flex:1; padding:10px; border-radius:6px; border:1px solid #ccc; background:white; color:#000; transition: background 0.3s, color 0.3s; }
+    body.dark #text-input { background:#2a2a2a; color:#eee; border:1px solid #555; }
+    #send-btn { margin-left:10px; padding:10px 18px; border:none; border-radius:6px; background:#4e8cff; color:white; cursor:pointer; }
+    #settings-btn { position:absolute; top:10px; right:120px; padding:8px 12px; border-radius:6px; border:none; background:#4e8cff; color:white; cursor:pointer; }
+    #darkmode-btn { position:absolute; top:10px; right:80px; padding:8px 12px; border-radius:6px; border:none; background:#333; color:white; cursor:pointer; }
+    #newchat-btn { position:absolute; top:10px; right:10px; padding:8px 12px; border-radius:6px; border:none; background:#4e8cff; color:white; cursor:pointer; }
+    #chat-select { position:absolute; top:50px; right:10px; padding:6px; border-radius:6px; }
+    #settings-popup { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.45); display:none; justify-content:center; align-items:center; }
+    #settings-box { width:320px; background:white; padding:20px; border-radius:12px; display:flex; flex-direction:column; gap:12px; transition: background 0.3s, color 0.3s; }
+    body.dark #settings-box { background:#1e1e1e; color:#eee; }
+    #bot-preview { width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid #4e8cff; }
   </style>
 </head>
-<body><button id="settings-btn">⚙️ 設定</button>
+<body><button id="settings-btn">⚙️ 設定</button> <button id="darkmode-btn">🌙</button> <button id="newchat-btn">🆕 新聊天</button> <select id="chat-select"></select>
 
 <div id="chat-container"></div><div id="input-area">
   <input id="text-input" placeholder="輸入訊息..." />
   <button id="send-btn">送出</button>
-</div><!-- Popup --><div id="settings-popup">
+</div><div id="settings-popup">
   <div id="settings-box">
     <h3>Bot 設定</h3>
     <label>Bot 名字：</label>
-    <input id="bot-name" placeholder="Bot 名字" /><label>Bot 頭像：</label>
-<input type="file" id="bot-img" accept="image/*" />
-<img id="bot-preview" src="" />
-
-<button id="save-settings">儲存</button>
-
+    <input id="bot-name" placeholder="Bot 名字" />
+    <label>Bot 頭像：</label>
+    <input type="file" id="bot-img" accept="image/*" />
+    <img id="bot-preview" src="" />
+    <button id="save-settings">儲存</button>
   </div>
 </div><script>
   const chat = document.getElementById("chat-container");
   const input = document.getElementById("text-input");
   const sendBtn = document.getElementById("send-btn");
+  const newChatBtn = document.getElementById("newchat-btn");
+  const chatSelect = document.getElementById("chat-select");
 
-  let botName = "Bot";
-  let botAvatar = "";
+  let botName = localStorage.getItem("botName") || "Bot";
+  let botAvatar = localStorage.getItem("botAvatar") || "";
+  let currentChat = localStorage.getItem("currentChat") || generateChatKey();
+
+  function generateChatKey() {
+    return 'chat-' + new Date().toISOString();
+  }
+
+  function saveCurrentChat() {
+    const history = Array.from(chat.children).map(c => ({ sender: c.classList.contains('user') ? 'user':'bot', text: c.querySelector('div:last-child').textContent }));
+    localStorage.setItem(currentChat, JSON.stringify(history));
+  }
+
+  function loadChat(key) {
+    chat.innerHTML = '';
+    const history = JSON.parse(localStorage.getItem(key) || '[]');
+    history.forEach(msg => addMessage(msg.text, msg.sender, false));
+    currentChat = key;
+    localStorage.setItem('currentChat', currentChat);
+    updateChatSelect();
+  }
+
+  function updateChatSelect() {
+    chatSelect.innerHTML = '';
+    for (let i=0;i<localStorage.length;i++) {
+      const k = localStorage.key(i);
+      if (k.startsWith('chat-')) {
+        const opt = document.createElement('option');
+        opt.value = k;
+        opt.textContent = k;
+        if (k === currentChat) opt.selected = true;
+        chatSelect.appendChild(opt);
+      }
+    }
+  }
 
   // Popup controls
   const popup = document.getElementById("settings-popup");
   const settingsBtn = document.getElementById("settings-btn");
+  const darkBtn = document.getElementById("darkmode-btn");
   const botNameInput = document.getElementById("bot-name");
   const botImg = document.getElementById("bot-img");
   const botPreview = document.getElementById("bot-preview");
@@ -150,6 +97,7 @@
   settingsBtn.onclick = () => {
     popup.style.display = "flex";
     botNameInput.value = botName;
+    botPreview.src = botAvatar;
   };
 
   botImg.onchange = e => {
@@ -165,30 +113,33 @@
 
   document.getElementById("save-settings").onclick = () => {
     botName = botNameInput.value || "Bot";
+    localStorage.setItem("botName", botName);
+    localStorage.setItem("botAvatar", botAvatar);
     popup.style.display = "none";
   };
 
-  function addMessage(text, sender="user") {
+  darkBtn.onclick = () => document.body.classList.toggle("dark");
+
+  function addMessage(text, sender="user", save=true) {
     const box = document.createElement("div");
     box.className = `message ${sender}`;
-
     if (sender === "bot" && botAvatar) {
       const img = document.createElement("img");
       img.src = botAvatar;
       img.className = "avatar";
       box.appendChild(img);
     }
-
     const bubble = document.createElement("div");
     bubble.textContent = text;
     box.appendChild(bubble);
-
     chat.appendChild(box);
     chat.scrollTop = chat.scrollHeight;
+
+    if (save) saveCurrentChat();
   }
 
   function botReply() {
-    const replies = ["蛤", "我不想思考(？)", "這不重要！(吧", "啊對，你對，才怪", "我不知道欸😦", "你再說一次？"];
+    const replies = ["蛤", "我不想思考(？", "這不重要！(吧", "啊對，你對，才怪", "我不知道欸😦", "再說一次？"":3","笑死XD","啊咧?","真的喔?" ,":/',"._."];
     const t = replies[Math.floor(Math.random()*replies.length)];
     addMessage(`${botName}: ${t}`, "bot");
   }
@@ -201,8 +152,22 @@
     setTimeout(botReply, 500);
   };
 
-  input.addEventListener("keydown", e => {
-    if (e.key === "Enter") sendBtn.onclick();
-  });
+  input.addEventListener("keydown", e => { if (e.key === "Enter") sendBtn.onclick(); });
+
+  newChatBtn.onclick = () => {
+    saveCurrentChat();
+    currentChat = generateChatKey();
+    chat.innerHTML = '';
+    localStorage.setItem('currentChat', currentChat);
+    updateChatSelect();
+  };
+
+  chatSelect.onchange = () => loadChat(chatSelect.value);
+
+  // 初始載入
+  window.onload = () => {
+    updateChatSelect();
+    loadChat(currentChat);
+  };
 </script></body>
 </html>
