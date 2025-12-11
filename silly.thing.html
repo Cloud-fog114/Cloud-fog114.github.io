@@ -49,6 +49,7 @@ body.dark #settings-box { background:#1e1e1e; color:#eee; }
     <button id="save-settings">儲存</button>
   </div>
 </div><script>
+window.onload = () => {
   const chat = document.getElementById("chat-container");
   const input = document.getElementById("text-input");
   const sendBtn = document.getElementById("send-btn");
@@ -59,22 +60,24 @@ body.dark #settings-box { background:#1e1e1e; color:#eee; }
   let botAvatar = localStorage.getItem("botAvatar") || "";
   let currentChat = localStorage.getItem("currentChat") || generateChatKey();
 
-  function generateChatKey() {
-    return 'chat-' + new Date().toISOString();
-  }
+  function generateChatKey() { return 'chat-' + new Date().toISOString(); }
 
   function saveCurrentChat() {
-    const history = Array.from(chat.children).map(c => ({ sender: c.classList.contains('user') ? 'user':'bot', text: c.querySelector('div:last-child').textContent }));
-    localStorage.setItem(currentChat, JSON.stringify(history));
+    try {
+      const history = Array.from(chat.children).map(c => ({ sender: c.classList.contains('user') ? 'user':'bot', text: c.querySelector('div:last-child').textContent }));
+      localStorage.setItem(currentChat, JSON.stringify(history));
+    } catch(e){console.error(e);}
   }
 
   function loadChat(key) {
     chat.innerHTML = '';
-    const history = JSON.parse(localStorage.getItem(key) || '[]');
-    history.forEach(msg => addMessage(msg.text, msg.sender, false));
-    currentChat = key;
-    localStorage.setItem('currentChat', currentChat);
-    updateChatSelect();
+    try {
+      const history = JSON.parse(localStorage.getItem(key) || '[]');
+      history.forEach(msg => addMessage(msg.text, msg.sender, false));
+      currentChat = key;
+      localStorage.setItem('currentChat', currentChat);
+      updateChatSelect();
+    } catch(e){console.error(e);}
   }
 
   function updateChatSelect() {
@@ -169,10 +172,8 @@ body.dark #settings-box { background:#1e1e1e; color:#eee; }
 
   chatSelect.onchange = () => loadChat(chatSelect.value);
 
-  // 初始載入
-  window.onload = () => {
-    updateChatSelect();
-    loadChat(currentChat);
-  };
+  updateChatSelect();
+  loadChat(currentChat);
+};
 </script></body>
 </html>
