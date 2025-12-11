@@ -1,1 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<meta charset="UTF-8">
+
+<body>
+  <h3>隨機亂講 Bot</h3>
+
+  <div id="msg" style="height:150px;overflow:auto;border:1px solid #ccc;padding:5px;"></div>
+
+  <input id="inp" placeholder="輸入訊息...">
+  <button onclick="send()">送出</button>
+
+  <script>
+    const r = ["月亮今天休假了。", "樹正在偷笑。", "其實風很怕冷。"];
+
+    function send() {
+      const t = inp.value.trim();
+      if (!t) return;
+      add("你", t);
+      inp.value = "";
+      add("Bot", r[Math.floor(Math.random() * r.length)]);
+    }
+
+    function add(who, text) {
+      msg.innerHTML += `<div><b>${who}：</b>${text}</div>`;
+      msg.scrollTop = msg.scrollHeight;
+    }
+  </script>
+</body>
+</html>
 
