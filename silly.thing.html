@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>silly Bot</title>
-  <link rel="icon" href="擷取.PNG">
+<link rel="icon" href="擷取.PNG">
 <style>
 body {
   margin: 0;
@@ -84,19 +84,17 @@ body.dark #input-area { background:#1e1e1e; }
 #settings-box {
   background: white;
   padding: 20px;
-  width: 320px;
+  width: 340px;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 body.dark #settings-box { background:#1e1e1e; color:#eee; }
-
 </style>
 </head>
 
 <body>
-
 <div id="top-bar">
   <button id="settings-btn">⚙️</button>
   <button id="dark-btn">🌙</button>
@@ -111,27 +109,27 @@ body.dark #settings-box { background:#1e1e1e; color:#eee; }
   <button id="send-btn">送出</button>
 </div>
 
-<!-- 設定 -->
+<!-- 設定面板 -->
 <div id="settings-popup">
 <div id="settings-box">
   <h3>設定</h3>
 
-  <!-- 【新增】Bot 名字 -->
+  <!-- Bot 名字 -->
   <label>Bot 名字</label>
   <input id="bot-name">
 
-  <!-- 【新增】聊天名稱 -->
+  <!-- 聊天名稱 -->
   <label>聊天名稱</label>
   <input id="chat-name">
 
-  <!-- 【新增】Bot 頭像裁切 -->
+  <!-- 頭像裁切 -->
   <label>Bot 頭像</label>
   <input type="file" id="bot-img" accept="image/*">
-  <canvas id="crop" width="200" height="200" style="border:1px solid #ccc;"></canvas>
+  <canvas id="crop" width="200" height="200" style="border:1px solid #ccc; cursor: grab;"></canvas>
   <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
   <button id="apply-avatar">套用頭像</button>
 
-  <!-- 【新增】背景上傳 -->
+  <!-- 背景上傳 -->
   <label>聊天室背景</label>
   <input type="file" id="bg-img" accept="image/*">
   <button id="clear-bg">移除背景</button>
@@ -145,18 +143,15 @@ window.onload = () => {
 const chat = document.getElementById("chat-container");
 const input = document.getElementById("text-input");
 
+/* 基本資料 */
 let botName = localStorage.getItem("botName") || "Bot";
 let botAvatar = localStorage.getItem("botAvatar") || "";
 let chats = JSON.parse(localStorage.getItem("chats") || "{}");
 let chatNames = JSON.parse(localStorage.getItem("chatNames") || "{}");
 let currentChat = localStorage.getItem("currentChat") || createChat();
+const botReplies = ["蛤", "我不想思考(？", "這不重要！(吧", "啊對，你對，才怪", "我不知道欸😦", "再說一次？", ":3", "XD", ":/", "先不要誒...", "._.","好累喔...",";3","要死了喔XP","請容許我消失一下",":0",":D"];
 
-/* 【新增】Bot 回覆列表 */
-const botReplies = [
-  "蛤", "我不想思考(？", "這不重要！(吧", "啊對，你對，才怪", "我不知道欸😦", "再說一次？", ":3", "XD", ":/", "先不要誒...", "._.","好累喔...",";3","要死了喔XP","請容許我消失一下",":0",":D"
-];
-
-/* 建立新聊天 */
+/* 新聊天 */
 function createChat() {
   const id = "chat-" + Date.now();
   chats[id] = [];
@@ -164,7 +159,7 @@ function createChat() {
   return id;
 }
 
-/* 存檔 */
+/* 儲存資料 */
 function save() {
   localStorage.setItem("chats", JSON.stringify(chats));
   localStorage.setItem("chatNames", JSON.stringify(chatNames));
@@ -174,85 +169,76 @@ function save() {
 /* 渲染聊天 */
 function render() {
   chat.innerHTML = "";
-  chats[currentChat].forEach(m => addMsg(m.text, m.sender, false));
-
-  /* 【新增】套用聊天背景 */
+  chats[currentChat].forEach(m => addMsg(m.text,m.sender,false));
   const bg = localStorage.getItem("bg-"+currentChat);
   chat.style.backgroundImage = bg ? `url(${bg})` : "";
 }
 
 /* 顯示訊息 */
-function addMsg(text, sender, saveMsg=true) {
-  const div = document.createElement("div");
-  div.className = "message " + sender;
-
-  /* 【新增】bot avatar */
-  if (sender==="bot" && botAvatar) {
-    const img = document.createElement("img");
-    img.src = botAvatar;
-    img.className = "avatar";
+function addMsg(text,sender,saveMsg=true){
+  const div=document.createElement("div");
+  div.className="message "+sender;
+  if(sender==="bot" && botAvatar){
+    const img=document.createElement("img");
+    img.src=botAvatar;
+    img.className="avatar";
     div.appendChild(img);
   }
-
   div.append(text);
   chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-
-  if (saveMsg) {
-    chats[currentChat].push({text, sender});
+  chat.scrollTop=chat.scrollHeight;
+  if(saveMsg){
+    chats[currentChat].push({text,sender});
     save();
   }
 }
 
-/* 送出訊息 */
-document.getElementById("send-btn").onclick = () => {
-  if (!input.value.trim()) return;
+/* 送訊息 */
+document.getElementById("send-btn").onclick=()=>{
+  if(!input.value.trim()) return;
   addMsg(input.value,"user");
   input.value="";
-
-  /* 【新增】隨機亂回 */
-  const reply = botReplies[Math.floor(Math.random()*botReplies.length)];
+  const reply=botReplies[Math.floor(Math.random()*botReplies.length)];
   setTimeout(()=>addMsg(botName+"："+reply,"bot"),400);
 };
-input.onkeydown = e => e.key==="Enter" && document.getElementById("send-btn").click();
+input.onkeydown=e=>{if(e.key==="Enter") document.getElementById("send-btn").click();};
 
 /* 新聊天 */
-document.getElementById("new-chat").onclick = () => {
-  currentChat = createChat();
+document.getElementById("new-chat").onclick=()=>{
+  currentChat=createChat();
   render();
   updateSelect();
 };
 
-/* 下拉選單切換聊天 */
-function updateSelect() {
-  const sel = document.getElementById("chat-select");
+/* 選擇聊天 */
+function updateSelect(){
+  const sel=document.getElementById("chat-select");
   sel.innerHTML="";
   Object.keys(chats).forEach(id=>{
     const o=document.createElement("option");
     o.value=id;
-    /* 【新增】顯示聊天名稱 */
-    o.textContent = chatNames[id]||id;
+    o.textContent=chatNames[id]||id;
     if(id===currentChat)o.selected=true;
     sel.appendChild(o);
   });
 }
-document.getElementById("chat-select").onchange = e => {
+document.getElementById("chat-select").onchange=e=>{
   currentChat=e.target.value;
   render();
 };
 
 /* 暗色模式 */
-document.getElementById("dark-btn").onclick = ()=>document.body.classList.toggle("dark");
+document.getElementById("dark-btn").onclick=()=>document.body.classList.toggle("dark");
 
 /* 打開設定 */
-document.getElementById("settings-btn").onclick = ()=>{
+document.getElementById("settings-btn").onclick=()=>{
   document.getElementById("settings-popup").style.display="flex";
   document.getElementById("bot-name").value=botName;
   document.getElementById("chat-name").value=chatNames[currentChat]||"";
 };
 
 /* 儲存設定 */
-document.getElementById("save-settings").onclick = ()=>{
+document.getElementById("save-settings").onclick=()=>{
   botName=document.getElementById("bot-name").value||"Bot";
   chatNames[currentChat]=document.getElementById("chat-name").value;
   localStorage.setItem("botName",botName);
@@ -261,28 +247,39 @@ document.getElementById("save-settings").onclick = ()=>{
   document.getElementById("settings-popup").style.display="none";
 };
 
-/* 【新增】頭像裁切 */
+/* 【新增】頭像裁切+拖曳 */
 const canvas=document.getElementById("crop");
 const ctx=canvas.getContext("2d");
-let img=new Image(),scale=1;
+let img=new Image(),scale=1,offsetX=0,offsetY=0,isDragging=false,startX=0,startY=0;
 
 document.getElementById("bot-img").onchange=e=>{
   const reader=new FileReader();
-  reader.onload=()=>{img.src=reader.result; img.onload=draw;};
+  reader.onload=()=>{img.src=reader.result; img.onload=draw; offsetX=0; offsetY=0;};
   reader.readAsDataURL(e.target.files[0]);
 };
-document.getElementById("zoom").oninput=e=>{ scale=e.target.value; draw(); };
+document.getElementById("zoom").oninput=e=>{
+  scale=parseFloat(e.target.value);
+  draw();
+};
+
+/* 拖曳事件 */
+canvas.onmousedown=e=>{isDragging=true; startX=e.offsetX; startY=e.offsetY; canvas.style.cursor='grabbing';};
+canvas.onmousemove=e=>{if(isDragging){offsetX+=e.offsetX-startX; offsetY+=e.offsetY-startY; startX=e.offsetX; startY=e.offsetY; draw();}};
+canvas.onmouseup=canvas.onmouseleave=e=>{isDragging=false; canvas.style.cursor='grab';};
+
 function draw(){
-  ctx.clearRect(0,0,200,200);
-  const s=Math.min(img.width,img.height);
-  ctx.drawImage(img,(200-s*scale)/2,(200-s*scale)/2,s*scale,s*scale);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const s=Math.min(img.width,img.height)*scale;
+  const x=(canvas.width-s)/2 + offsetX;
+  const y=(canvas.height-s)/2 + offsetY;
+  ctx.drawImage(img,0,0,img.width,img.height,x,y,s,s);
 }
 document.getElementById("apply-avatar").onclick=()=>{
   botAvatar=canvas.toDataURL();
   localStorage.setItem("botAvatar",botAvatar);
 };
 
-/* 【新增】背景上傳 */
+/* 背景上傳 */
 document.getElementById("bg-img").onchange=e=>{
   const reader=new FileReader();
   reader.onload=()=>{
