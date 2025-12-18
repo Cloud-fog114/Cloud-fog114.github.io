@@ -109,27 +109,22 @@ body.dark #settings-box { background:#1e1e1e; color:#eee; }
   <button id="send-btn">送出</button>
 </div>
 
-<!-- 設定面板 -->
 <div id="settings-popup">
 <div id="settings-box">
   <h3>設定</h3>
 
-  <!-- Bot 名字 -->
   <label>Bot 名字</label>
   <input id="bot-name">
 
-  <!-- 聊天名稱 -->
   <label>聊天名稱</label>
   <input id="chat-name">
 
-  <!-- 頭像裁切 -->
   <label>Bot 頭像</label>
   <input type="file" id="bot-img" accept="image/*">
   <canvas id="crop" width="200" height="200" style="border:1px solid #ccc; cursor: grab;"></canvas>
   <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
   <button id="apply-avatar">套用頭像</button>
 
-  <!-- 背景上傳 -->
   <label>聊天室背景</label>
   <input type="file" id="bg-img" accept="image/*">
   <button id="clear-bg">移除背景</button>
@@ -143,7 +138,6 @@ window.onload = () => {
 const chat = document.getElementById("chat-container");
 const input = document.getElementById("text-input");
 
-/* 基本資料 */
 let botName = localStorage.getItem("botName") || "Bot";
 let botAvatar = localStorage.getItem("botAvatar") || "";
 let chats = JSON.parse(localStorage.getItem("chats") || "{}");
@@ -151,22 +145,18 @@ let chatNames = JSON.parse(localStorage.getItem("chatNames") || "{}");
 let currentChat = localStorage.getItem("currentChat") || createChat();
 const botReplies = ["蛤", "我不想思考(？", "這不重要！(吧", "啊對，你對，才怪", "我不知道欸😦", "再說一次？", ":3", "XD", ":/", "先不要誒...", "._.","好累喔...",";3","要死了喔XP","請容許我消失一下",":0",":D"];
 
-/* 新聊天 */
 function createChat() {
   const id = "chat-" + Date.now();
   chats[id] = [];
   save();
   return id;
 }
-
-/* 儲存資料 */
 function save() {
   localStorage.setItem("chats", JSON.stringify(chats));
   localStorage.setItem("chatNames", JSON.stringify(chatNames));
   localStorage.setItem("currentChat", currentChat);
 }
 
-/* 渲染聊天 */
 function render() {
   chat.innerHTML = "";
   chats[currentChat].forEach(m => addMsg(m.text,m.sender,false));
@@ -174,7 +164,6 @@ function render() {
   chat.style.backgroundImage = bg ? `url(${bg})` : "";
 }
 
-/* 顯示訊息 */
 function addMsg(text,sender,saveMsg=true){
   const div=document.createElement("div");
   div.className="message "+sender;
@@ -193,7 +182,6 @@ function addMsg(text,sender,saveMsg=true){
   }
 }
 
-/* 送訊息 */
 document.getElementById("send-btn").onclick=()=>{
   if(!input.value.trim()) return;
   addMsg(input.value,"user");
@@ -203,14 +191,11 @@ document.getElementById("send-btn").onclick=()=>{
 };
 input.onkeydown=e=>{if(e.key==="Enter") document.getElementById("send-btn").click();};
 
-/* 新聊天 */
 document.getElementById("new-chat").onclick=()=>{
   currentChat=createChat();
   render();
   updateSelect();
 };
-
-/* 選擇聊天 */
 function updateSelect(){
   const sel=document.getElementById("chat-select");
   sel.innerHTML="";
@@ -227,17 +212,13 @@ document.getElementById("chat-select").onchange=e=>{
   render();
 };
 
-/* 暗色模式 */
 document.getElementById("dark-btn").onclick=()=>document.body.classList.toggle("dark");
 
-/* 打開設定 */
 document.getElementById("settings-btn").onclick=()=>{
   document.getElementById("settings-popup").style.display="flex";
   document.getElementById("bot-name").value=botName;
   document.getElementById("chat-name").value=chatNames[currentChat]||"";
 };
-
-/* 儲存設定 */
 document.getElementById("save-settings").onclick=()=>{
   botName=document.getElementById("bot-name").value||"Bot";
   chatNames[currentChat]=document.getElementById("chat-name").value;
@@ -247,7 +228,6 @@ document.getElementById("save-settings").onclick=()=>{
   document.getElementById("settings-popup").style.display="none";
 };
 
-/* 【新增】頭像裁切+拖曳 */
 const canvas=document.getElementById("crop");
 const ctx=canvas.getContext("2d");
 let img=new Image(),scale=1,offsetX=0,offsetY=0,isDragging=false,startX=0,startY=0;
@@ -262,7 +242,6 @@ document.getElementById("zoom").oninput=e=>{
   draw();
 };
 
-/* 拖曳事件 */
 canvas.onmousedown=e=>{isDragging=true; startX=e.offsetX; startY=e.offsetY; canvas.style.cursor='grabbing';};
 canvas.onmousemove=e=>{if(isDragging){offsetX+=e.offsetX-startX; offsetY+=e.offsetY-startY; startX=e.offsetX; startY=e.offsetY; draw();}};
 canvas.onmouseup=canvas.onmouseleave=e=>{isDragging=false; canvas.style.cursor='grab';};
@@ -279,7 +258,6 @@ document.getElementById("apply-avatar").onclick=()=>{
   localStorage.setItem("botAvatar",botAvatar);
 };
 
-/* 背景上傳 */
 document.getElementById("bg-img").onchange=e=>{
   const reader=new FileReader();
   reader.onload=()=>{
